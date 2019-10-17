@@ -1,6 +1,6 @@
 package EShop.lab2
 
-import EShop.lab2.CartActor.{AddItem, CancelCheckout, CloseCheckout, RemoveItem, StartCheckout}
+import EShop.lab2.CartActor._
 import akka.actor.{ActorRef, ActorSystem, Cancellable, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import org.scalatest.{BeforeAndAfterAll, FlatSpecLike}
@@ -130,6 +130,17 @@ class CartActorTest
     cart ! AddItem("King Lear")
     expectMsg(nonEmptyMsg)
     expectMsg(1)
+  }
+
+  it should "add two new items" in {
+    val cart = cartActorWithCartSizeResponseOnStateChange(system)
+
+    cart ! AddItem("Book1")
+    expectMsg(nonEmptyMsg)
+    expectMsg(1)
+    cart ! AddItem("Book2")
+    expectMsg(nonEmptyMsg)
+    expectMsg(2)
   }
 }
 
