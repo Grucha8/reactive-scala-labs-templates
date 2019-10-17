@@ -1,6 +1,6 @@
 package EShop.lab2
 
-import EShop.lab2.CartActor.AddItem
+import EShop.lab2.CartActor.{AddItem, RemoveItem}
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
 import akka.event.Logging
 
@@ -37,8 +37,14 @@ class CartActor extends Actor {
       context become nonEmpty(Cart(List(item)), null)
   }
 
-  def nonEmpty(cart: Cart, timer: Cancellable): Receive =
-    null
+  def nonEmpty(cart: Cart, timer: Cancellable): Receive = {
+    case RemoveItem(item) =>
+      val newCart = cart.removeItem(item)
+      newCart.size match {
+        case 0 => context become empty
+        case _ => context become nonEmpty(newCart, timer)
+      }
+  }
 
   def inCheckout(cart: Cart): Receive = ???
 

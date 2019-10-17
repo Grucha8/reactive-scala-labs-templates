@@ -3,7 +3,7 @@ package EShop.lab2
 case class Cart(items: Seq[Any]) {
   def contains(item: Any): Boolean = ???
   def addItem(item: Any): Cart     = ???
-  def removeItem(item: Any): Cart  = ???
+  def removeItem(item: Any): Cart  = Cart(items.filter(i => i != item))
   def size: Int                    = items.size
 }
 
