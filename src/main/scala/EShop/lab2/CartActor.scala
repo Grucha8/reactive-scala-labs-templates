@@ -1,6 +1,6 @@
 package EShop.lab2
 
-import EShop.lab2.CartActor.{AddItem, RemoveItem}
+import EShop.lab2.CartActor.{AddItem, RemoveItem, StartCheckout}
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
 import akka.event.Logging
 
@@ -44,8 +44,10 @@ class CartActor extends Actor {
         case 0 => context become empty
         case _ => context become nonEmpty(newCart, timer)
       }
+    case StartCheckout =>
+      context become inCheckout(cart)
   }
 
-  def inCheckout(cart: Cart): Receive = ???
+  def inCheckout(cart: Cart): Receive = null
 
 }
