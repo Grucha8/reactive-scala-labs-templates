@@ -38,7 +38,7 @@ class CartActor extends Actor {
   }
 
   def nonEmpty(cart: Cart, timer: Cancellable): Receive = {
-    case RemoveItem(item) =>
+    case RemoveItem(item) if cart.contains(item) =>
       val newCart = cart.removeItem(item)
       newCart.size match {
         case 0 => context become empty
