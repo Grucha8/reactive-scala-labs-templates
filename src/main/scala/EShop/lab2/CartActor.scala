@@ -33,11 +33,12 @@ class CartActor extends Actor {
   def receive: Receive = empty
 
   def empty: Receive = {
-    case AddItem(_) =>
-      context become nonEmpty(null, null)
+    case AddItem(item) =>
+      context become nonEmpty(Cart(List(item)), null)
   }
 
-  def nonEmpty(cart: Cart, timer: Cancellable): Receive = ???
+  def nonEmpty(cart: Cart, timer: Cancellable): Receive =
+    null
 
   def inCheckout(cart: Cart): Receive = ???
 
