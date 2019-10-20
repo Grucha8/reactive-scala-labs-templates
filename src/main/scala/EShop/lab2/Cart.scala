@@ -8,5 +8,5 @@ case class Cart(items: Seq[Any]) {
 }
 
 object Cart {
-  def empty: Cart = ???
+  def empty: Cart = Cart(List.empty)
 }
