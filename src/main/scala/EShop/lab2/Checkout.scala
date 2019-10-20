@@ -1,6 +1,6 @@
 package EShop.lab2
 
-import EShop.lab2.Checkout.{CancelCheckout, ExpireCheckout, SelectDeliveryMethod, StartCheckout}
+import EShop.lab2.Checkout._
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
 import akka.event.Logging
 
@@ -50,10 +50,15 @@ class Checkout extends Actor {
     case SelectDeliveryMethod(method)    => context become selectingPaymentMethod(timer)
   }
 
-  def selectingPaymentMethod(timer: Cancellable): Receive =
-    null
+  def selectingPaymentMethod(timer: Cancellable): Receive = {
+    case CancelCheckout | ExpireCheckout => context become cancelled
+    case SelectPayment(_) =>
+      val timer = scheduler.scheduleOnce(paymentTimerDuration, self, ExpirePayment)(context.system.dispatcher)
+      context become processingPayment(timer)
+  }
 
-  def processingPayment(timer: Cancellable): Receive = ???
+  def processingPayment(timer: Cancellable): Receive =
+    null
 
   def cancelled: Receive =
     null
