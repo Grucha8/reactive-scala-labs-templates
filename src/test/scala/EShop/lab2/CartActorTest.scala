@@ -21,7 +21,7 @@ class CartActorTest
   it should "change state after adding first item to the cart" in {
     val nonEmptyTestMsg = "changedStateToNonEmpty"
 
-    val cart = system.actorOf(Props(new CartActor {
+    val cart = system.actorOf(Props(new CartActor() {
       override def nonEmpty(cart: Cart, timer: Cancellable): Receive = {
         sender ! nonEmptyTestMsg
         super.nonEmpty(cart, timer)
@@ -68,7 +68,10 @@ class CartActorTest
     expectMsg(nonEmptyMsg)
     expectMsg(1)
     cart ! StartCheckout
-    expectMsg(inCheckoutMsg)
+    fishForMessage() {
+      case m: String if m == inCheckoutMsg => true
+      case _: CheckoutStarted              => false
+    }
     expectMsg(1)
   }
 
@@ -79,7 +82,10 @@ class CartActorTest
     expectMsg(nonEmptyMsg)
     expectMsg(1)
     cart ! StartCheckout
-    expectMsg(inCheckoutMsg)
+    fishForMessage() {
+      case m: String if m == inCheckoutMsg => true
+      case _: CheckoutStarted              => false
+    }
     expectMsg(1)
     cart ! CancelCheckout
     expectMsg(nonEmptyMsg)
@@ -93,7 +99,10 @@ class CartActorTest
     expectMsg(nonEmptyMsg)
     expectMsg(1)
     cart ! StartCheckout
-    expectMsg(inCheckoutMsg)
+    fishForMessage() {
+      case m: String if m == inCheckoutMsg => true
+      case _: CheckoutStarted              => false
+    }
     expectMsg(1)
     cart ! CloseCheckout
     expectMsg(emptyMsg)
@@ -107,7 +116,10 @@ class CartActorTest
     expectMsg(nonEmptyMsg)
     expectMsg(1)
     cart ! StartCheckout
-    expectMsg(inCheckoutMsg)
+    fishForMessage() {
+      case m: String if m == inCheckoutMsg => true
+      case _: CheckoutStarted              => false
+    }
     expectMsg(1)
     cart ! AddItem("Henryk V")
     expectNoMessage
@@ -150,7 +162,7 @@ object CartActorTest {
   val inCheckoutMsg = "inCheckout"
 
   def cartActorWithCartSizeResponseOnStateChange(system: ActorSystem): ActorRef =
-    system.actorOf(Props(new CartActor {
+    system.actorOf(Props(new CartActor() {
       override val cartTimerDuration: FiniteDuration = 1.seconds
 
       override def empty() = {
