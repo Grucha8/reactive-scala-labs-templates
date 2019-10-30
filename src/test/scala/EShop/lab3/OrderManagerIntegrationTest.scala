@@ -28,7 +28,7 @@ class OrderManagerIntegrationTest
     ): Unit =
       (orderManager ? message).mapTo[OrderManager.Ack].futureValue shouldBe Done
 
-    val orderManager = TestActorRef(new OrderManager())
+    val orderManager = TestActorRef(new OrderManager(), "orderManager")
 
     sendMessage(orderManager, AddItem("rollerblades"))
 
