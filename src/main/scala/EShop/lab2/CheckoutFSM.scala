@@ -32,7 +32,7 @@ class CheckoutFSM(cartActor: ActorRef) extends LoggingFSM[Status.Value, Data] {
 
   when(NotStarted) {
     case Event(StartCheckout, Uninitialized) =>
-      val timer = scheduler.scheduleOnce(checkoutTimerDuration, self, ExpireCheckout)(context.system.dispatcher)
+      scheduler.scheduleOnce(checkoutTimerDuration, self, ExpireCheckout)(context.system.dispatcher)
       goto(SelectingDelivery)
   }
 
@@ -48,6 +48,7 @@ class CheckoutFSM(cartActor: ActorRef) extends LoggingFSM[Status.Value, Data] {
     case Event(CancelCheckout | ExpireCheckout, _) => goto(Cancelled)
     case Event(SelectPayment(method), _) =>
       log.info("Selected payment method: ", method)
+      scheduler.scheduleOnce(paymentTimerDuration, self, ExpirePayment)(context.system.dispatcher)
       goto(ProcessingPayment)
   }
 

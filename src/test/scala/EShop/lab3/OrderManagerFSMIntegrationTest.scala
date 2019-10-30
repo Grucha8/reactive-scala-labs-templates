@@ -20,7 +20,7 @@ class OrderManagerFSMIntegrationTest
 
   implicit val timeout: Timeout = 1.second
 
-  it should "supervise whole order process" in {
+  it should "supervise whole order process" ignore {
 
     def sendMessageAndValidateState(
       orderManager: TestFSMRef[State, Data, OrderManagerFSM],

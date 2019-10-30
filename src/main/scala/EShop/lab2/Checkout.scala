@@ -1,6 +1,5 @@
 package EShop.lab2
 
-import EShop.lab2.CartActor.CloseCheckout
 import EShop.lab2.Checkout._
 import EShop.lab3.Payment
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
@@ -39,8 +38,8 @@ class Checkout(
   private val scheduler = context.system.scheduler
   private val log       = Logging(context.system, this)
 
-  val checkoutTimerDuration = 5 seconds
-  val paymentTimerDuration  = 5 seconds
+  val checkoutTimerDuration = 1 seconds
+  val paymentTimerDuration  = 1 seconds
 
   def receive: Receive = LoggingReceive {
     case StartCheckout =>
@@ -69,7 +68,7 @@ class Checkout(
     case CancelCheckout | ExpirePayment => context become cancelled
     case ReceivePayment =>
       timer.cancel()
-      cartActor ! CloseCheckout
+      cartActor ! CartActor.CloseCheckout
       context become closed
   }
 

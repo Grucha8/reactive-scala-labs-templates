@@ -39,7 +39,7 @@ class OrderManager extends Actor with ActorLogging {
 
   def uninitialized: Receive = LoggingReceive {
     case AddItem(item) =>
-      val cartActor = context.actorOf(CartActor.props(self), "cartActor")
+      val cartActor = context.actorOf(CartActor.props(), "cartActor")
       cartActor ! CartActor.AddItem(item)
       sender() ! Done
       context become open(cartActor)
@@ -75,7 +75,7 @@ class OrderManager extends Actor with ActorLogging {
   def inPayment(senderRef: ActorRef): Receive = LoggingReceive {
     case Checkout.PaymentStarted(paymentRef) =>
       senderRef ! Done
-      context become inPayment(paymentRef, null) // <- awful
+      context become inPayment(paymentRef, senderRef)
   }
 
   def inPayment(paymentActorRef: ActorRef, senderRef: ActorRef): Receive = LoggingReceive {

@@ -21,10 +21,10 @@ object CartActor {
   sealed trait Event
   case class CheckoutStarted(checkoutRef: ActorRef) extends Event
 
-  def props(orderManager: ActorRef) = Props(new CartActor(orderManager))
+  def props() = Props(new CartActor())
 }
 
-class CartActor(orderManager: ActorRef) extends Actor with ActorLogging {
+class CartActor extends Actor with ActorLogging {
 
   val cartTimerDuration = 5 seconds
 
@@ -36,32 +36,36 @@ class CartActor(orderManager: ActorRef) extends Actor with ActorLogging {
   def empty: Receive = LoggingReceive {
     case AddItem(item) =>
       context become nonEmpty(Cart.empty.addItem(item), scheduleTimer)
+    case GetItems =>
+      sender ! Cart.empty
   }
 
   def nonEmpty(cart: Cart, timer: Cancellable): Receive = LoggingReceive {
     case AddItem(item) =>
       context become nonEmpty(cart.addItem(item), timer)
+    case RemoveItem(item) if cart.contains(item) && cart.size == 1 =>
+      cart.removeItem(item)
+      context become empty
     case RemoveItem(item) if cart.contains(item) =>
       val newCart = cart.removeItem(item)
-      newCart.size match {
-        case 0 => context become empty
-        case _ => context become nonEmpty(newCart, timer)
-      }
+      context become nonEmpty(newCart, timer)
     case StartCheckout =>
       timer.cancel()
       val checkoutRef = context.actorOf(Checkout.props(self), "checkoutActor")
       checkoutRef ! Checkout.StartCheckout
-      orderManager ! CheckoutStarted(checkoutRef)
+      sender ! CheckoutStarted(checkoutRef)
       context become inCheckout(cart)
     case ExpireCart =>
       context become empty
+    case GetItems =>
+      sender ! cart
   }
 
   def inCheckout(cart: Cart): Receive = LoggingReceive {
     case CancelCheckout =>
       context become nonEmpty(cart, scheduleTimer)
     case CloseCheckout =>
-      orderManager ! CloseCheckout
+      context.parent ! CloseCheckout
       context become empty
   }
 
